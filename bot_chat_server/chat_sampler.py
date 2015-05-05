@@ -1,5 +1,7 @@
 #!/usr/bin/env python
 
+# Original version: https://github.com/lisa-groundhog/GroundHog/blob/master/experiments/nmt/sample.py
+
 import argparse
 import cPickle
 import traceback
