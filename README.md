@@ -27,7 +27,7 @@ By default it will listen on port 5000. You need to make sure this port is opene
 (The model files are being uploaded, we will update the script when they are available)
 
 
-Back to local machine, in the `slack_bottom/scripts/example.coffee` folder, you will find the following 2 lines:
+Back to local machine, in the `slack_bottom/scripts/example.coffee` file, you will find the following 2 lines:
 
 ```
   POST_MESSAGE_URL = 'https://slack.com/api/chat.postMessage?token=<YOUR_SLACK_TOKEN>&channel=<YOUR_DEBUG_CHANNEL>&username=<YOUR_SLACK_USERNAME>&as_user=true&pretty=1&&text='
