@@ -1,0 +1,1 @@
+This folder should contain the model files. Download it from <INSERT LINK>.
