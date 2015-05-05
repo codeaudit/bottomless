@@ -1,7 +1,9 @@
 # bottomless
-LSTM-based chatbot
+LSTM-based chatbot for Slack
 
 This is based on [GroundHog web-demo](https://github.com/lisa-groundhog/GroundHog/tree/master/experiments/nmt/web-demo) (and GroundHog was used to train the model). We re-wrote the HTTP server using Flask though.
+
+The bot was built with [hubot-slack](https://github.com/slackhq/hubot-slack).
 
 # Usage
 You need a computational server to run the code in `bot_chat_server`, 
