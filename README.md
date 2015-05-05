@@ -1,6 +1,8 @@
 # bottomless
 LSTM-based chatbot
 
+This is based on [GroundHog web-demo](https://github.com/lisa-groundhog/GroundHog/tree/master/experiments/nmt/web-demo) (and GroundHog was used to train the model). We re-wrote the HTTP server using Flask though.
+
 # Usage
 You need a computational server to run the code in `bot_chat_server`, 
 and another server (normally on heroku) for the bot itself.
@@ -20,7 +22,7 @@ cd ..
 
 By default it will listen on port 5000. You need to make sure this port is opened.
 
-(The model files are being uploaded, I will update the script when they are available)
+(The model files are being uploaded, we will update the script when they are available)
 
 
 Back to local machine, in the `slack_bottom/scripts/example.coffee` folder, you will find the following 2 lines:
