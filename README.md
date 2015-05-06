@@ -17,12 +17,18 @@ Then clone the code and run:
 
 ```
 cd bot_chat_server/model
+chmod +x ./download_models.sh
 ./download_models.sh
 cd ..
 ./run.sh &
 ```
 
-By default it will listen on port 5000. You need to make sure this port is opened.
+The `download_models.sh` script will download the trained model. However, this model
+is trained on private chat data at Adatao, hence it is not available for the public.
+Therefore, the downloaded zip file is encrypted. If you are an Adataoist, please contact
+@vupham to know the password.
+
+By default the computational server will listen on port 5000. You need to make sure this port is opened.
 
 (The model files are being uploaded, we will update the script when they are available)
 
