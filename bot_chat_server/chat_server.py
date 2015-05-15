@@ -50,9 +50,15 @@ class ChatServer(Process):
             debugging = 'debug' in request.args
             sentence = request.args.get('input')
             print 'Sentence: ', sentence
-            tokenizer = subprocess.Popen(self.tokenizer_cmd
-                , stdin=subprocess.PIPE, stdout=subprocess.PIPE)
-            sentence, _ = tokenizer.communicate(sentence.encode('utf-8'))
+            try:
+                tokenizer = subprocess.Popen(self.tokenizer_cmd
+                                             , stdin=subprocess.PIPE
+                                             , stdout=subprocess.PIPE)
+                sentence, _ = tokenizer.communicate(sentence.encode('utf-8'))
+            except UnicodeDecodeError:
+                print 'Got UnicodeDecodeError with sentence =', sentence
+                return ""
+
             print 'Sentence after tokenize: ', sentence
 
             [messages, costs] = self.sample_chat(sentence)
@@ -61,14 +67,18 @@ class ChatServer(Process):
                 messages = self.filter_messages(messages)
                 if len(messages) > 0:
                     for i in range(0, len(messages)):
-                        detokenizer = subprocess.Popen(self.detokenizer_cmd
-                                    , stdin=subprocess.PIPE, stdout=subprocess.PIPE)
-                        detokenized_sentence, _ = detokenizer.communicate(messages[i].encode('utf-8'))
-                        messages[i] = detokenized_sentence
+                        try:
+                            detokenizer = subprocess.Popen(self.detokenizer_cmd
+                                                           , stdin=subprocess.PIPE
+                                                           , stdout=subprocess.PIPE)
+                            detokenized_sentence, _ = detokenizer.communicate(messages[i].encode('utf-8'))
+                            messages[i] = detokenized_sentence
+                        except UnicodeDecodeError:
+                            print 'Got UnicodeDecodeError in detokenizer with sentence =', messages[i]
+                            return ""
                     if debugging:
                         return '\n'.join(['%f\t%s' % (c, m) for (m, c) in zip(messages, costs)])
-                    else:
-                        return messages[0] if costs[0] < self.RESPONSE_MAX_COST else ""
+                    return messages[0] if costs[0] < self.RESPONSE_MAX_COST else ""
             return ""
 
         @app.route('/shutdown', methods=['GET', 'POST', 'PUT'])
