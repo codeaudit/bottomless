@@ -28,8 +28,8 @@ class ChatServer(Process):
         seq = self.reverse(input_chat)
         return self.sampler.sample(seq, self.NUM_SAMPLES)
 
-    def filter_messages(self, messages):
-        return [m for m in messages if (not m.startswith('khangbot')) and ('UNK' not in m)]
+    def filter_messages(self, messages, costs):
+        return [(m, c) for (m, c) in zip(messages, costs) if (not m.startswith('khangbot')) and ('UNK' not in m)]
 
     def run(self):
         app = Flask(__name__)
@@ -44,11 +44,11 @@ class ChatServer(Process):
                 self.RESPONSE_MAX_COST = float(request.args.get('val'))
             return 'Current max cost: %f' % self.RESPONSE_MAX_COST
 
-
         @app.route('/chat', methods=['GET', 'POST', 'PUT'])
         def chat_flask():
             debugging = 'debug' in request.args
             sentence = request.args.get('input')
+
             print 'Sentence: ', sentence
             try:
                 tokenizer = subprocess.Popen(self.tokenizer_cmd
@@ -58,27 +58,26 @@ class ChatServer(Process):
             except UnicodeDecodeError:
                 print 'Got UnicodeDecodeError with sentence =', sentence
                 return ""
-
             print 'Sentence after tokenize: ', sentence
 
             [messages, costs] = self.sample_chat(sentence)
 
             if costs is not None and len(costs) > 0:
-                messages = self.filter_messages(messages)
+                messages = self.filter_messages(messages, costs)
                 if len(messages) > 0:
-                    for i in range(0, len(messages)):
+                    decoded_messages = []
+                    for (m, c) in messages:
                         try:
                             detokenizer = subprocess.Popen(self.detokenizer_cmd
                                                            , stdin=subprocess.PIPE
                                                            , stdout=subprocess.PIPE)
-                            detokenized_sentence, _ = detokenizer.communicate(messages[i].encode('utf-8'))
-                            messages[i] = detokenized_sentence
+                            detokenized_sentence, _ = detokenizer.communicate(m.encode('utf-8'))
+                            decoded_messages.append((m, c))
                         except UnicodeDecodeError:
-                            print 'Got UnicodeDecodeError in detokenizer with sentence =', messages[i]
-                            return ""
+                            print 'Got UnicodeDecodeError in detokenizer with sentence =', m
                     if debugging:
-                        return '\n'.join(['%f\t%s' % (c, m) for (m, c) in zip(messages, costs)])
-                    return messages[0] if costs[0] < self.RESPONSE_MAX_COST else ""
+                        return '\n'.join(['%f\t%s' % (c, m) for (m, c) in decoded_messages])
+                    return decoded_messages[0][0] if decoded_messages[0][1] < self.RESPONSE_MAX_COST else ""
             return ""
 
         @app.route('/shutdown', methods=['GET', 'POST', 'PUT'])
